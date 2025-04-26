@@ -7,7 +7,7 @@ import time
 from bs4 import BeautifulSoup
 import csv  # Importar la librería csv
 
-def extraer_info_imdb_ordenado(url_base, archivo_salida="peliculas_imdb_completo.csv", max_clicks=200, num_scrolls=3):
+def extraer_info_imdb_ordenado(url_base, archivo_salida="../Prediccion_taquilla_vs_Prime/data/raw/peliculas_imdb_completo.csv", max_clicks=200, num_scrolls=3):
     """
     Extrae ID, nombre, año, duración y Metascore de películas de una página de búsqueda de IMDb,
     ordenados alfabéticamente por nombre y guarda los resultados en un archivo CSV.
