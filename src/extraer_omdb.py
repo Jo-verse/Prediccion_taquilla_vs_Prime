@@ -1,4 +1,5 @@
 import csv
+from regex import T
 import requests
 import time
 from dotenv import load_dotenv
@@ -7,15 +8,15 @@ import os
 # Cargar las variables de entorno desde el archivo .env
 dotenv_path = '../Prediccion_taquilla_vs_Prime/.env'
 load_dotenv(dotenv_path=dotenv_path)
-omdb_api_key = os.getenv("OMDb_API_KEY")
+Tmdb_api_key = os.getenv("TMDb_API_KEY")
 
-if not omdb_api_key:
+if not Tmdb_api_key:
     print("Error: No se encontró la clave API de OMDb en el archivo .env")
     exit()
 
-def obtener_info_omdb(imdb_id, omdb_api_key):
+def obtener_info_omdb(imdb_id, Tmdb_api_key):
     # (La función obtener_info_omdb que ya definimos)
-    url = f"http://www.omdbapi.com/?i={imdb_id}&apikey={omdb_api_key}&plot=short&r=json"
+    url = f"http://www.omdbapi.com/?i={imdb_id}&apikey={Tmdb_api_key}&plot=short&r=json"
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -37,7 +38,7 @@ def obtener_info_omdb(imdb_id, omdb_api_key):
         print(f"Error al decodificar la respuesta JSON para el ID {imdb_id}")
         return None
 
-def enriquecer_peliculas_csv(archivo_entrada="peliculas_imdb_completo.csv", archivo_salida="../Prediccion_taquilla_vs_Prime/data/raw/peliculas_enriquecidas.csv"):
+def enriquecer_peliculas_csv(archivo_entrada="../Prediccion_taquilla_vs_Prime/data/raw/peliculas_imdb_completo.csv", archivo_salida="../Prediccion_taquilla_vs_Prime/data/raw/peliculas_enriquecidas.csv"):
     """
     Lee un archivo CSV con información de películas (incluyendo el ID de IMDb) y
     añade información de género, director, actores y sinopsis desde la API de OMDb.
@@ -58,7 +59,7 @@ def enriquecer_peliculas_csv(archivo_entrada="peliculas_imdb_completo.csv", arch
         for row in reader:
             imdb_id = row.get('ID')
             if imdb_id:
-                omdb_info = obtener_info_omdb(imdb_id, omdb_api_key)
+                omdb_info = obtener_info_omdb(imdb_id, Tmdb_api_key)
                 if omdb_info:
                     row['Género'] = omdb_info.get('Genre', 'N/A')
                     row['Director'] = omdb_info.get('Director', 'N/A')

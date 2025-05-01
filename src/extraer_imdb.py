@@ -15,7 +15,7 @@ def extraer_info_imdb_ordenado(url_base, archivo_salida="../Prediccion_taquilla_
     Args:
         url_base (str): URL de la página de búsqueda de IMDb.
         archivo_salida (str, opcional): Nombre del archivo CSV para guardar la información.
-            Por defecto "peliculas_imdb_completo.csv".
+            Por defecto "../Prediccion_taquilla_vs_Prime/data/raw/peliculas_imdb_completo.csv".
         max_clicks (int, opcional): Máximo número de clics en el botón "Cargar más".
             Por defecto 200.
         num_scrolls (int): Número de scrolls a realizar antes de hacer clic en "Cargar más"
@@ -78,7 +78,7 @@ def extraer_info_imdb_ordenado(url_base, archivo_salida="../Prediccion_taquilla_
         print(f"Películas iniciales encontradas: {len(peliculas_info)}")
 
         click_count = 0
-        while click_count < max_clicks:
+        while True:  # El bucle continuará hasta que se rompa explícitamente
             for _ in range(num_scrolls):
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 time.sleep(1)
@@ -89,6 +89,8 @@ def extraer_info_imdb_ordenado(url_base, archivo_salida="../Prediccion_taquilla_
                 )
                 try:
                     load_more_button.click()
+                    click_count += 1
+                    print(f"Clic en 'Cargar más' número: {click_count}")
                 except ElementClickInterceptedException:
                     print("ElementClickInterceptedException: Intentando hacer clic con JavaScript.")
                     driver.execute_script("arguments[0].click();", load_more_button)
@@ -102,8 +104,8 @@ def extraer_info_imdb_ordenado(url_base, archivo_salida="../Prediccion_taquilla_
                 time.sleep(2)
 
             except (NoSuchElementException, TimeoutException):
-                print("El botón '50 más' ya no está presente o no se pudo hacer clic, o los nuevos resultados no cargaron.")
-                break
+                print("El botón '50 más' ya no está presente o no se pudo hacer clic, o los nuevos resultados no cargaron. Fin de la carga.")
+                break  # Salir del bucle while si el botón ya no está presente o clickable
             except Exception as e:
                 print(f"Ocurrió un error general: {e}")
                 break
@@ -111,7 +113,6 @@ def extraer_info_imdb_ordenado(url_base, archivo_salida="../Prediccion_taquilla_
             nuevas_peliculas_info = extraer_info_pagina(driver.page_source)
             peliculas_info.update(nuevas_peliculas_info)
             print(f"Películas encontradas después de scroll/clic {click_count}: {len(peliculas_info)} (+{len(nuevas_peliculas_info)})")
-            click_count += 1
 
         # Guardar la información de las películas en un archivo CSV ordenado por nombre
         with open(archivo_salida, "w", encoding="utf-8", newline='') as csvfile:
@@ -137,3 +138,4 @@ def extraer_info_imdb_ordenado(url_base, archivo_salida="../Prediccion_taquilla_
 if __name__ == "__main__":
     url_imdb_busqueda = "https://www.imdb.com/search/title/?title_type=feature&release_date=2000-01-01,2025-12-31"
     extraer_info_imdb_ordenado(url_imdb_busqueda)
+    
